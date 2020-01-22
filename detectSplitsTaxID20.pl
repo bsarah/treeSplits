@@ -60,7 +60,7 @@ for(my $i = 0; $i < scalar @tr; $i++)
 {
     if($tr[$i] eq ')' || $tr[$i] eq '(' || $tr[$i] eq ',' || $tr[$i] eq ';'){
 	#	if($i > 0){
-	if(scalar @T > 1){
+	if(scalar @T > 1){#not the very first step
 	if($tmp eq "" && $T[-1] eq ')'){
 	    my $dumstr = "inode";		
 	    push @T, "$dumstr";
@@ -68,7 +68,6 @@ for(my $i = 0; $i < scalar @tr; $i++)
 	    push @L, 'i';
 #	    $count++;
 	}}#}
-
 
 	if($tmp ne ""){
 	    push @N, $brackets;
@@ -141,7 +140,9 @@ my $treesize = scalar @N;
 
 my @S = ("e") x $treesize; #e is init value; take w for both
 #go through the tree and add labels to the father's locations. if a node is monophyletic (one letter), then take it further to the father. if it has both letters (a and b), add a one to the score and do not hand it further as both letters are possible in the father node
-my $score = 0;
+my $score = 0; #number of splits
+my $supportsum = 0; #arlt
+my $bootstrapsum = 0; #ultrafast bootstrap
 for(my $s=0;$s<scalar @F;$s++){
     if($F[$s]<0){
 	$S[$s] =  "na"; #nodes do no count
@@ -175,10 +176,48 @@ for(my $s=0;$s<scalar @F;$s++){
 #	    print STDERR "scorecase: $label $plabel\n";
 	    $S[$papa] = "w";
 	    $score += 1;
+	    #print "inner node: $T[$papa]\n";
+	    my @SUP = split ":", $T[$papa];
+	    my @SUP2 = split "_", $SUP[0];
+	    my $val = 0;
+	    if($SUP2[-1] eq "inode" || scalar @SUP2 == 1){
+		my $treesize = scalar @T;
+		#print STDERR "error: $T[$papa] $papa $treesize\n";
+		my @SUPm2 = split ":", $T[$papa-2];
+		my @SUP2m2 = split "_", $SUPm2[0];
+		$val = $SUP2m2[-1];
+		#print STDERR "solution? $val\n";
+	    }
+	    else{
+		$val = $SUP2[-1];
+	    }
+	    my @V = split "\/", $val;
+	    if(scalar @V == 1){
+		$supportsum += $V[0];
+	    }
+	    else{
+		$bootstrapsum += $V[1];
+		$supportsum += $V[0];
+	    }
 	}
     }
 }
 
 my $sword = join(',',@S);
 #print STDERR "$sword\n";
-print "$score\t$numa\t$numb\t$numx\n";
+
+my $avsupport = 1;
+my $avbootstrap = 0;
+if($score > 0){
+    $avsupport = sprintf("%.3f",$supportsum/$score);
+    $avbootstrap  = sprintf("%.3f",$bootstrapsum/$score);
+}
+if($avsupport > 1){
+    $avsupport = sprintf("%.3f",$avsupport/100);
+}
+if($avbootstrap > 1){
+    $avbootstrap = sprintf("%.3f",$avbootstrap/100);
+}
+
+#print "average support of splits: $avsupport\n";
+print "$score\t$avsupport\t$avbootstrap\t$numa\t$numb\t$numx\n";
