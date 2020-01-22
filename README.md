@@ -42,12 +42,19 @@ additional output (tab separated):
 avDistAB avDistAA avDistBB avCurMinAB avCurMinAA avCurMinBB Dav Dmin
 
 avDistAB: average pairwise distance between archaeal and bacterial genes in the newick tree
+
 avDistAA: average pairwise distance between archaeal and archaeal genes in the newick tree
+
 avDistBB: average pairwise distance between bacterial and bacterial genes in the newick tree
+
 avCurMinAB: average of only minimal pairwise distances between archaeal and bacterial genes
+
 avCurMinAA: average of only minimal pairwise distances between archaeal and archaeal genes
+
 avCurMinBB: average of only minimal pairwise distances between bacterial and bacterial genes
+
 Dav: (0.5*(avDistAA+avDistBB))/avDistAB
+
 Dmin: (min(avDistAA,avDistBB))/avDistAB
 
 
@@ -55,9 +62,12 @@ Dmin: (min(avDistAA,avDistBB))/avDistAB
 The example newick tree is called COG4883_taxid.newick and can be found in the repository.
 
 perl detectSplitsTaxID20.pl COG4883_taxid.newick
+
 2	0.908	0.000	17	2	0
 
+
 perl newickDistMatrix.pl COG4883_taxid.newick COG4883_taxid.newick.mat
+
 0.997009117647059	0.827864264705882	0.78371	0.961524736842105	0.467820588235294	0.78371	0.808204376560365	0.650805195270193
 
 The matrix output file COG4883_taxid.newick.mat can be found in the repository, too.
